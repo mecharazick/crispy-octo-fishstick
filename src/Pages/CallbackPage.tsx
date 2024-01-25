@@ -29,7 +29,6 @@ class CallbackPage extends React.Component<React.PropsWithoutRef<"div">, ICallba
             card
         };
         const json = JSON.stringify(biodocParams);
-        console.log(json);
         parent?.window?.postMessage(json, ORIGIN);
         this.state = { ...biodocParams };
     }

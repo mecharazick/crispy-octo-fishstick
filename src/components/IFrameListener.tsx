@@ -6,13 +6,13 @@ export interface IIFrameListenerProps<T>
   onMessageReceived?: HandleReceiveMessageType<T>;
 }
 
-export type HandleReceiveMessageType<T> = (data: T) => {};
+export type HandleReceiveMessageType<T> = (data: T) => void;
 
 const MESSAGE_EVENT = "message";
 
 class IFrameListener<
-  T,
-  P extends IIFrameListenerProps<T>
+  T = {},
+  P extends IIFrameListenerProps<T> = IIFrameListenerProps<T>
 > extends React.Component<P> {
   origin: string;
   constructor(props: P | Readonly<P>) {
@@ -22,15 +22,18 @@ class IFrameListener<
     this.origin = props?.origin || window.location.origin;
   }
 
-  componendDidMount(): void {
-    window?.addEventListener(MESSAGE_EVENT, this.handleMessageEventListener);
+  componentDidMount(): void {
+    window?.addEventListener(MESSAGE_EVENT, this.handleMessageEventListener, false);
+    return;
   }
 
   componentWillUnmount(): void {
     window?.removeEventListener(MESSAGE_EVENT, this.handleMessageEventListener);
+    return;
   }
 
-  handleMessageEventListener(ev: MessageEvent<any>) {
+  handleMessageEventListener(ev: MessageEvent) {
+    console.log(ev);
     if (ev.origin != this.origin) return;
     if (this.props?.onMessageReceived == null) return;
     const data = JSON.parse(ev.data) as T;
@@ -38,9 +41,10 @@ class IFrameListener<
   }
 
   render() {
+    const { origin, onMessageReceived, ...props } = this.props;
     return (
       <iframe
-        {...(this.props as React.ComponentPropsWithRef<"iframe">)}
+        {...(props)}
       ></iframe>
     );
   }
